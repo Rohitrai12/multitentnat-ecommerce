@@ -1,103 +1,111 @@
-"use client"
-import React, { useState } from 'react'
-import { Poppins } from 'next/font/google'
-import Link from 'next/link'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { usePathname } from 'next/navigation'
-import Image from 'next/image'
-import { NavbarSidebar } from './navbar-sidebar'
-import { Item } from '@radix-ui/react-select'
-import { MenuIcon } from 'lucide-react'
+"use client";
+
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+import { Poppins } from "next/font/google";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+import NavbarSidebar from "./navbar-sidebar";
+import { MenuIcon } from "lucide-react";
 
 const poppins = Poppins({
-    subsets: ['latin'],
-    weight: ['700'],
-})
+  subsets: ["latin"],
+  weight: ["700"],
+});
 
 interface NavbarItemProps {
-    href: string
-    children: React.ReactNode
-    isActive?: boolean
+  href: string;
+  children: React.ReactNode;
+  isActive?: boolean;
 }
 
-const NavbarItem: React.FC<NavbarItemProps> = ({ href, children, isActive }) => {
-    return (
+const NavbarItem = ({ href, children, isActive }: NavbarItemProps) => {
+  return (
+    <Button
+      asChild
+      variant="outline"
+      className={cn(
+        "bg-transparent hover:bg-transparent rounded-full hover:border-primary border-transparent px-3.5 text-lg",
+        isActive && "bg-black text-white hover:bg-black hover:text-white"
+      )}
+    >
+      <Link href={href}>{children}</Link>
+    </Button>
+  );
+};
+
+const navbarItems = [
+  { href: "/", children: "Home" },
+  { href: "/about", children: "About" },
+  { href: "/contact", children: "Contact" },
+  { href: "/services", children: "Services" },
+];
+
+const Navbar = () => {
+  const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+
+  return (
+    <nav className="h-20 flex border-b justify-between font-medium bg-white">
+      <Link
+        href="/"
+        className="pl-6 flex items-center"
+      >
+        <span className={cn("text-5xl font-semibold", poppins.className)}>
+          funroad
+        </span>
+      </Link>
+
+      <NavbarSidebar
+        items={navbarItems}
+        open={isSidebarOpen}
+        onOpenChange={setIsSidebarOpen}
+      />
+
+      <div className="items-center gap-4 hidden lg:flex">
+        {navbarItems.map((item) => (
+          <NavbarItem
+            key={item.href}
+            href={item.href}
+            isActive={pathname === item.href}
+          >
+            {item.children}
+          </NavbarItem>
+        ))}
+      </div>
+
+      <div className="hidden lg:flex">
         <Button
-            asChild
-            variant="navlink"
-            className={cn(
-                "",
-                isActive && "bg-black text-white hover:bg-black hover:text-white"
-            )}
+          asChild
+          variant="secondary"
+          className="border-l border-t-0 border-b-0 border-r-0 px-12 h-full rounded-none bg-white hover:bg-pink-400 transition-colors text-lg"
         >
-            <Link href={href}>
-                {children}
-            </Link>
+          <Link href="/sign-in">Log In</Link>
         </Button>
-    )
-}
+        <Button
+          asChild
+          variant="secondary"
+          className="border-l border-t-0 border-none border-b-0 border-r-0 px-12 h-full rounded-none bg-black text-white hover:bg-pink-400 hover:text-black transition-colors text-lg"
+        >
+          <Link href="/sign-up">Start Selling</Link>
+        </Button>
+      </div>
 
-const NavbarItems = [
-    {
-        href: '/',
-        children: 'Home',
-    },
-    {
-        href: '/about',
-        children: 'About',
-    },
-    {
-        href: '/features',
-        children: 'Features',
-    },
-    {
-        href: '/pricing',
-        children: 'Pricing',
-    },
-    {
-        href: '/contact',
-        children: 'Contact',
-    },
-]
+      <div className="flex lg:hidden items-center justify-center">
+        <Button
+          variant="ghost"
+          className="size-12 border-transparent bg-white border-none"
+          onClick={() => setIsSidebarOpen(true)}
+        >
+          <MenuIcon />
+        </Button>
+      </div>
+    </nav>
+  );
+};
 
-function navbar() {
-    const pathname = usePathname()
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-    return (
-        <div className='h-20 flex border-b justify-between font-medium bg-white'>
-            <Link href={'/'} className='pl-6 flex items-center'>
-                <span className={cn(poppins.className, 'text-3xl text-black')}>
-                    <Image src={'/logo.svg'} alt='logo' width={150} height={150}></Image>
-                </span>
-            </Link>
-
-            <div className='items-center gap-4  hidden lg:flex'>
-                {NavbarItems.map((item) => (
-                    <NavbarItem key={item.href} {...item} isActive={item.href === pathname} />
-                ))}
-            </div>
-
-            <div className='hidden lg:flex'>
-                <Link href="/sign-in">
-                    <Button variant={'secondary'} className='border-l border-t-0 border-r-0 px-12 h-full rounded-none bg-white hover:bg-pink-400 transition-colors text-lg'>
-                        Sign in
-                    </Button>
-                </Link>
-                <Link href="/sign-up">
-                    <Button variant={'secondary'} className='border-l border-t-0 border-r-0 px-12 h-full rounded-none bg-black hover:text-black text-white hover:bg-pink-400 transition-colors text-lg border-none'>
-                        Start Selling
-                    </Button>
-                </Link>
-            </div>
-            <div className='flex lg:hidden items-center justify-center'>
-                <Button variant={"ghost"} className='size-12 border-trasnparent bg-white' onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                    <MenuIcon />
-                </Button>
-            </div>
-            <NavbarSidebar open={isSidebarOpen} setOpenChange={setIsSidebarOpen} items={NavbarItems} />
-        </div>
-    )
-}
-
-export default navbar
+export default Navbar;
